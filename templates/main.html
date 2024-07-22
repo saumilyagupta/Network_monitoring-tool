@@ -1,0 +1,334 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Form and Data Table</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <style>
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .table-container table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-container thead th {
+            position: sticky;
+            top: 0;
+            background-color: #f3f4f6;
+            z-index: 1;
+        }
+
+        .timestamp-column {
+            min-width: 10px;
+            /* Adjust this value as needed */
+            white-space: nowrap;
+        }
+
+        .highlight-cell {
+            background-color: #fef3c7 !important;
+            /* Light yellow */
+            transition: background-color 0.3s ease;
+        }
+
+        .highlight-row {
+            background-color: #b8d2ff !important;
+            /* Light gray */
+            transition: background-color 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="justify-center p-4 bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+    <script type="text/javascript">
+        $(document).on('submit', '#startsniffer', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: '/startsniffer',
+                data: {
+                    sourceIP: $('#sourceIP').val(),
+                    destinationIP: $('#destinationIP').val(),
+                    protocol: $('#protocol').val(),
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                },
+                success: function (data) {
+                    alert(data)
+                    console.log(data)
+                }
+            });
+            document.getElementById('message').value = ''
+        });
+
+        $(document).ready(function () {
+            $('#stopSnifferBtn').on('click', function (e) {
+                e.preventDefault();
+                console.log("Stop button clicked");
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/stopsniffer/',
+                    data: {
+                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                    },
+                    success: function (data) {
+                        console.log("Success response:", data);
+                        alert(data.message || "Sniffer stopped successfully");
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error response:", xhr.responseText);
+                        alert('An error occurred: ' + (xhr.responseJSON ? xhr.responseJSON.error : error));
+                    }
+                });
+            });
+        });
+
+    </script>
+    <nav class="bg-indigo-600 shadow-lg mb-8">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <span class="font-bold text-2xl text-white">Network Monitor</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-800 mx-5 text-white">Welcome
+                        {% if user.is_authenticated %}
+                        <span class="font-bold text-4xl text-white" id="username">{{user.username}}</span>
+
+                    </span>
+
+                    <a href="/toptalker"
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Top Talker
+                    </a>
+                    <a class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        id="logout-btn" href="/logout">
+                        Logout
+                    </a>
+                    {% else %}
+                    <a class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 mx-5"
+                        id="logout-btn" href="/login">
+                        Login
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">Network Monitor</h1> -->
+    {% if user.is_authenticated %}
+    <div id="MainPageContent">
+        <div class="flex flex-wrap justify-center gap-8">
+            <div class="bg-gradient-to-br from-cyan-400 to-blue-500 p-8 rounded-lg shadow-md w-full max-w-md mb-8">
+                <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">IP Configuration</h2>
+                <form method="POST" id="startsniffer">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="sourceIP" class="block text-gray-700 text-sm font-bold mb-2">Source IP:</label>
+                        <input type="text" id="sourceIP" name="sourceIP"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="destinationIP" class="block text-gray-700 text-sm font-bold mb-2">Destination
+                            IP:</label>
+                        <input type="text" id="destinationIP" name="destinationIP"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="mb-6">
+                        <label for="protocol" class="block text-gray-700 text-sm font-bold mb-2">Protocol:</label>
+                        <select id="protocol" name="protocol"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="All">All</option>
+                            <option value="TCP">TCP</option>
+                            <option value="UDP">UDP</option>
+                            <option value="FTP">FTP</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-between">
+                        <input type="submit" value="Start"
+                            class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300">
+                </form>
+
+
+                <button id="stopSnifferBtn"
+                    class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300">
+                    {% csrf_token %}
+                    Stop
+                </button>
+            </div>
+        </div>
+
+
+        <div
+        class="bg-gradient-to-br from-purple-400 to-blue-500 p-8 rounded-lg shadow-md w-full max-w-md mb-8"
+      >
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">
+          About Developer
+        </h2>
+        <div class="flex flex-col items-center text-gray-700">
+          <img
+            src="{% static 'saumilya.jpg'%}"
+            alt="Developer Photo"
+            class="w-32 h-32 rounded-full mb-4"
+          />
+          <p class="text-xl font-bold mb-4">Saumilya Gupta</p>
+          <div class="flex space-x-6 mt-2">
+            <a
+              href="https://github.com/saumilyagupta"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-600 hover:text-gray-800"
+            >
+              <i class="fab fa-github fa-2x"></i>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/saumilyagupta/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-600 hover:text-blue-800"
+            >
+              <i class="fab fa-linkedin fa-2x"></i>
+            </a>
+            <a
+              href="mailto:saumilyag@gmail.com"
+              class="text-red-600 hover:text-red-800"
+            >
+              <i class="fas fa-envelope fa-2x"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+
+
+        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-6xl mx-auto border-4 border-indigo-500 ">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Data Table</h2>
+            <div class="table-container">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-blue-600 uppercase bg-indigo-600">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Index</th>
+                            <th scope="col" class="px-6 py-3 timestamp-column">Timestamp</th>
+                            <th scope="col" class="px-6 py-3">Source IP</th>
+                            <th scope="col" class="px-6 py-3">Source PORT</th>
+                            <th scope="col" class="px-6 py-3">Destination IP</th>
+                            <th scope="col" class="px-6 py-3">Destination PORT</th>
+                            <th scope="col" class="px-6 py-3">Data Transferred</th>
+                            <th scope="col" class="px-6 py-3">Package Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="Tabledata">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    {% else %}
+    <div id="MainPageContent" class="text-center py-12">
+        <h2 class="text-2xl font-bold mb-4 text-white">You are not logged in</h2>
+        <p class="text-white mb-6">Please log in to access the Network Monitor features.</p>
+        <a href="/login"
+            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Click here to log in
+        </a>
+    </div>
+    {% endif %}
+
+
+
+
+
+
+    <script>
+        $(document).ready(function () {
+            function updateTable() {
+                $.ajax({
+                    type: 'GET',
+                    url: "/getData",
+                    success: function (response) {
+                        console.log(response);
+                        var tableBody = $("#Tabledata");
+                        tableBody.empty();
+
+                        // Assuming response.Data contains the array of network data
+                        var data = response.Data;
+
+                        // Sort the data by Index in descending order and limit to 100 entries
+                        data.sort((a, b) => b.Index - a.Index).slice(0, 100).forEach(function (item) {
+                            var row = $(`<tr class='bg-white border-b hover:bg-indigo-100 transition duration-300'>
+                    <td class='px-6 py-4'>${item.Index}</td>
+                    <td class='px-6 py-4 timestamp-column'>${item.TimeStamp}</td>
+                    <td class='px-6 py-4'>${item.SourceIP}</td>
+                    <td class='px-6 py-4'>${item.SourcePORT}</td>
+                    <td class='px-6 py-4'>${item.DestinationIP}</td>
+                    <td class='px-6 py-4'>${item.DestinationPORT}</td>
+                    <td class='px-6 py-4'>${item.DataLoad} kB</td>
+                    <td class='px-6 py-4'>${item.PackageType}</td>
+                </tr>`);
+
+                            // Add event listeners for mouseover and mouseout
+                            row.find('td').on('mouseover', function () {
+                                $(this).addClass('highlight-cell');
+                                $(this).parent().addClass('highlight-row');
+                            }).on('mouseout', function () {
+                                $(this).removeClass('highlight-cell');
+                                $(this).parent().removeClass('highlight-row');
+                            });
+
+                            tableBody.append(row);
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error updating table:', error);
+                    }
+                });
+            }
+
+            // Update table every 5 seconds
+            setInterval(updateTable, 2500);
+
+            // Initial update
+            updateTable();
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#topTalkerBtn').click(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: '/toptalker',
+                    success: function (data) {
+                        alert('Top Talker: ' + data.topTalker);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', error);
+                        alert('An error occurred while fetching top talker data');
+                    }
+                });
+            });
+        });
+    </script>
+
+
+    <footer class="bg-indigo-800 text-white text-center py-4 mt-8">
+        <p>&copy; 2024 Network Monitor. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

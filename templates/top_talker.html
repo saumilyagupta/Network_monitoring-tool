@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Top Talker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      src="https://kit.fontawesome.com/a076d05399.js"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      .table-container {
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .table-container table {
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+
+      .table-container thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f3f4f6;
+        z-index: 1;
+      }
+
+      .highlight-cell {
+        background-color: #fef3c7 !important;
+        /* Light yellow */
+        transition: background-color 0.3s ease;
+      }
+
+      .highlight-row {
+        background-color: #b8d2ff !important;
+        /* Light gray */
+        transition: background-color 0.3s ease;
+      }
+    </style>
+  </head>
+
+  <body
+    class="justify-center p-4 bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
+  >
+    <nav class="bg-indigo-600 shadow-lg mb-8">
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center">
+            <span class="font-bold text-2xl text-white">Network Monitor</span>
+          </div>
+          <div class="flex items-center space-x-4">
+            <span class="text-gray-800 mx-5 text-white"
+              >Welcome {% if user.is_authenticated %}
+              <span class="font-bold text-4xl" id="username"
+                >{{user.username}}</span
+              >
+            </span>
+
+            <a
+              href="/"
+              class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Home
+            </a>
+            <a
+              class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              id="logout-btn"
+              href="/logout"
+            >
+              Logout
+            </a>
+            {% else %}
+            <a
+              class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 mx-5"
+              id="logout-btn"
+              href="/login"
+            >
+              Login
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+    {% if user.is_authenticated %}
+    <div id="MainPageContent">
+      <div class="flex flex-wrap justify-center gap-8 mb-8">
+        <div
+          class="bg-gradient-to-br from-cyan-400 to-blue-500 p-8 rounded-lg shadow-md w-full max-w-md"
+        >
+          <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">
+            Top Talker Analysis
+          </h2>
+          <div class="flex justify-between">
+            <form method="POST" id="topTalkerForm">
+              {% csrf_token %}
+              <input
+                type="submit"
+                name="action"
+                value="Top Talker"
+                class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </form>
+            <form method="POST" id="GetDataUsed">
+              <input
+                type="submit"
+                name="action"
+                value="Most Bandwidth User"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </form>
+          </div>
+        </div>
+
+        <!-- Network Usage Summary section (now on the right) -->
+        <div
+          class="bg-gradient-to-br from-cyan-400 p-8 rounded-lg shadow-md w-full max-w-md"
+        >
+          <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">
+            Network Usage Summary
+          </h2>
+          <div class="flex flex-col items-center">
+            <span class="text-lg font-semibold text-gray-700 mb-2"
+              >Total Data Used (Last Hour):</span
+            >
+            <span id="totalDataUsed" class="text-3xl font-bold text-white">
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-white p-8 rounded-lg shadow-md w-full max-w-6xl mx-auto border-4 border-indigo-500"
+      >
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">
+          Results
+        </h2>
+        <div class="table-container">
+          <table class="w-full text-sm text-left text-gray-500">
+            <thead class="text-xs text-blue-600 uppercase bg-indigo-600">
+              <tr>
+                <th scope="col" class="px-6 py-3">Rank</th>
+                <th scope="col" class="px-6 py-3">IP Address</th>
+                <th scope="col" class="px-6 py-3">Data Transferred</th>
+                <th scope="col" class="px-6 py-3">Percentage</th>
+              </tr>
+            </thead>
+            <tbody id="ResultsTable">
+              <!-- Results will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div id="MainPageContent" class="text-center py-12">
+      <h2 class="text-2xl font-bold mb-4 text-gray-800">
+        You are not logged in
+      </h2>
+      <p class="text-gray-600 mb-6">
+        Please log in to access the Network Monitor features.
+      </p>
+      <a
+        href="/login"
+        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        Click here to log in
+      </a>
+    </div>
+    {% endif %}
+
+    <script>
+      $(document).ready(function () {
+        $("#topTalkerForm").submit(function (e) {
+          e.preventDefault();
+          var action = $(document.activeElement).val();
+          $.ajax({
+            type: "GET",
+            url: "/giveTopTalker",
+            data: {
+              action: action,
+              csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
+            },
+            success: function (response) {
+              console.log(response);
+              var tableBody = $("#ResultsTable");
+              tableBody.empty();
+
+              response.results.forEach(function (item, index) {
+                var row = $(`<tr class='bg-white border-b'>
+                                <td class='px-6 py-4'>${index + 1}</td>
+                                <td class='px-6 py-4'>${item.ip}</td>
+                                <td class='px-6 py-4'>${
+                                  item.dataTransferred
+                                } kB</td>
+                                <td class='px-6 py-4'>${item.percentage}%</td>
+                            </tr>`);
+                row
+                  .find("td")
+                  .on("mouseover", function () {
+                    $(this).addClass("highlight-cell");
+                    $(this).parent().addClass("highlight-row");
+                  })
+                  .on("mouseout", function () {
+                    $(this).removeClass("highlight-cell");
+                    $(this).parent().removeClass("highlight-row");
+                  });
+                tableBody.append(row);
+              });
+            },
+            error: function (xhr, status, error) {
+              console.error("Error:", error);
+              alert("An error occurred while fetching data");
+            },
+          });
+        });
+      });
+
+      $(document).ready(function () {
+        $("#GetDataUsed").submit(function (e) {
+          e.preventDefault();
+          var action = $(document.activeElement).val();
+          $.ajax({
+            type: "POST",
+            url: "/getUsedData",
+            data: {
+              action: action,
+              csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
+            },
+            success: function (response) {
+              console.log(response);
+              // var DataElelement = $("#totalDataUsed");
+              // tableBody.empty();
+
+              // data = response
+              //     DataElelement.append(`${data.totalDataUsed}`);
+
+              var dataElement = $("#totalDataUsed");
+              var totalDataUsedGB = (
+                response.totalDataUsed /
+                (1024 * 1024 * 1024)
+              ).toFixed(2);
+              dataElement.text(totalDataUsedGB + " GB");
+            },
+            error: function (xhr, status, error) {
+              console.error("Error:", error);
+              alert("An error occurred while fetching data");
+            },
+          });
+        });
+      });
+    </script>
+
+    <footer class="bg-indigo-800 text-white text-center py-4 mt-8">
+      <p>&copy; 2024 Network Monitor. All rights reserved.</p>
+    </footer>
+  </body>
+</html>

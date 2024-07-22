@@ -1,0 +1,97 @@
+Folder PATH listing for volume Windows-SSD
+Volume serial number is 94BE-B48E
+C:.
+¦   db.sqlite3
+¦   manage.py
+¦   tree.txt
+¦   
++---network
+¦   ¦   admin.py
+¦   ¦   apps.py
+¦   ¦   models.py
+¦   ¦   networkutils.py
+¦   ¦   TCPsniffer.py
+¦   ¦   tests.py
+¦   ¦   urls.py
+¦   ¦   views.py
+¦   ¦   __init__.py
+¦   ¦   
+¦   +---migrations
+¦   ¦   ¦   0001_initial.py
+¦   ¦   ¦   0002_alter_networkdata_destinationip_and_more.py
+¦   ¦   ¦   0003_alter_networkdata_dataload_and_more.py
+¦   ¦   ¦   0004_room.py
+¦   ¦   ¦   0005_rename_room_roomtest.py
+¦   ¦   ¦   0006_delete_roomtest_networkdata_destinationport_and_more.py
+¦   ¦   ¦   0007_rename_sourcepost_networkdata_sourceport_and_more.py
+¦   ¦   ¦   __init__.py
+¦   ¦   ¦   
+¦   ¦   +---__pycache__
+¦   ¦           0001_initial.cpython-310.pyc
+¦   ¦           0001_initial.cpython-312.pyc
+¦   ¦           0002_alter_networkdata_destinationip_and_more.cpython-310.pyc
+¦   ¦           0002_alter_networkdata_destinationip_and_more.cpython-312.pyc
+¦   ¦           0003_alter_networkdata_dataload_and_more.cpython-310.pyc
+¦   ¦           0003_alter_networkdata_dataload_and_more.cpython-312.pyc
+¦   ¦           0004_room.cpython-310.pyc
+¦   ¦           0004_room.cpython-312.pyc
+¦   ¦           0005_rename_room_roomtest.cpython-310.pyc
+¦   ¦           0005_rename_room_roomtest.cpython-312.pyc
+¦   ¦           0006_delete_roomtest_networkdata_destinationport_and_more.cpython-312.pyc
+¦   ¦           0007_rename_sourcepost_networkdata_sourceport_and_more.cpython-312.pyc
+¦   ¦           __init__.cpython-310.pyc
+¦   ¦           __init__.cpython-312.pyc
+¦   ¦           
+¦   +---__pycache__
+¦           admin.cpython-310.pyc
+¦           admin.cpython-312.pyc
+¦           apps.cpython-310.pyc
+¦           apps.cpython-312.pyc
+¦           models.cpython-310.pyc
+¦           models.cpython-312.pyc
+¦           networkutils.cpython-310.pyc
+¦           networkutils.cpython-312.pyc
+¦           TCPsniffer.cpython-310.pyc
+¦           TCPsniffer.cpython-312.pyc
+¦           urls.cpython-310.pyc
+¦           urls.cpython-312.pyc
+¦           views.cpython-310.pyc
+¦           views.cpython-312.pyc
+¦           __init__.cpython-310.pyc
+¦           __init__.cpython-312.pyc
+¦           
++---networkapp
+¦   ¦   asgi.py
+¦   ¦   settings.py
+¦   ¦   urls.py
+¦   ¦   wsgi.py
+¦   ¦   __init__.py
+¦   ¦   
+¦   +---__pycache__
+¦           settings.cpython-310.pyc
+¦           settings.cpython-312.pyc
+¦           urls.cpython-310.pyc
+¦           urls.cpython-312.pyc
+¦           wsgi.cpython-310.pyc
+¦           wsgi.cpython-312.pyc
+¦           __init__.cpython-310.pyc
+¦           __init__.cpython-312.pyc
+¦           
++---static
+¦       saumilya.jpg
+¦       
++---templates
+¦       login.html
+¦       main.html
+¦       registration.html
+¦       top_talker.html
+¦       
++---test
+    ¦   capture.csv
+    ¦   main.py
+    ¦   networkutils.py
+    ¦   test2.py
+    ¦   
+    +---__pycache__
+            networkutils.cpython-312.pyc
+            
